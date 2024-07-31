@@ -6,63 +6,44 @@ namespace LeetCodeEasy2287
     {
         public static int RearrangeCharacters(string s, string target)
         {
-            if(target.All(c => c == target[0]))
+            if (target.All(c => c == target[0]))
+                return s.Count(c => c == target[0]) / target.Length;
+
+            Dictionary<char, int> targetCount = new Dictionary<char, int>();
+            foreach (char c in target)
             {
-                int result = 0;
-                int count = 0;
-
-                foreach (char c in s)
-                    if (c == target[0])
-                    {
-                        count++;
-                        if (target.Length == count)
-                        {
-                            result++;
-                            count = 0;
-                        }
-                    }
-
-                return result; 
+                if (targetCount.ContainsKey(c))
+                    targetCount[c]++;
+                else
+                    targetCount[c] = 1;
             }
 
-
-            char[] targetChars = target.ToCharArray();
-            List<char[]> allFound =
-            [
-                new char[targetChars.Length]
-            ]; 
-
+            Dictionary<char, int> sCount = new();
             foreach (char c in s)
             {
-                if(targetChars.Contains(c))
+                if (targetCount.ContainsKey(c))
                 {
-                    List<int> found = targetChars.Select((b, i) => b.Equals(c) ? i : -1).Where(i => i != -1).ToList();
-
-                    bool isAdded = false; 
-                    foreach (var item in allFound)
-                    {
-                        for (int i = 0; i < found.Count; i++)
-                        {
-                            if (item[found[i]] == '\0')
-                            {
-                                item[found[i]] = c;
-                                isAdded = true; 
-                                break;
-                            }
-                        }
-                        if (isAdded)
-                            break; 
-                    }
-                    if(!isAdded)
-                    {
-                        char[] temp = new char[targetChars.Length];
-                        temp[found[0]] = c;
-                        allFound.Add(temp);
-                    }
+                    if (sCount.ContainsKey(c))
+                        sCount[c]++;
+                    else
+                        sCount[c] = 1;
                 }
             }
 
-            return allFound.Where(c => !c.Contains('\0')).Count();
+            int result = int.MaxValue;
+            foreach (var kvp in targetCount)
+            {
+                char c = kvp.Key;
+                int requiredCount = kvp.Value;
+
+                if (sCount.ContainsKey(c))
+                    result = Math.Min(result, sCount[c] / requiredCount);
+                else
+                    return 0; 
+            }
+
+            return result;
         }
+
     }
 }
